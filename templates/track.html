@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Track Train — Rail Drishti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--ivory:#f5f0e5;--paper:#fbf8f0;--cream:#e9dfca;--sand:#d7c5a4;--maroon:#6f1d1b;--brick:#a94a39;--char:#252321;--muted:#716b62;--green:#50684f;--line:#d7cdbb}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(rgba(245,240,229,.62),rgba(245,240,229,.62)),url("/static/train-background.webp") center center/cover fixed no-repeat;background-color:#f5f0e5;color:#252321;font-family:"DM Sans",sans-serif;min-height:100vh}body:after{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.22));z-index:-1}.top{height:4px;background:var(--maroon)}
+.container{width:min(1160px,calc(100% - 38px));margin:auto}
+nav{height:76px;border-bottom:1px solid #6f1d1b22;background:rgba(5,25,42,.88);position:sticky;top:0;z-index:1000}.navin{height:100%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-weight:700;letter-spacing:.2px;color:white;text-decoration:none;font-size:19px}.brand span{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:2px}
+.links{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.links a{color:white;text-decoration:none;padding:10px 12px;border-radius:8px;font-size:14px}.links a:hover,.links a.active{background:var(--maroon);color:white}
+main{padding:55px 0 80px}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:700;color:#f4c477;text-shadow:0 2px 8px rgba(0,0,0,.65)}h1,h2{font-family:"Libre Baskerville",serif}h1{font-size:clamp(32px,5vw,58px);line-height:1.05;margin:10px 0 16px;color:#252321;text-shadow:0 2px 8px rgba(255,255,255,.75)}h2{font-size:27px;margin:0 0 12px}.lead{font-size:17px;line-height:1.7;color:#3b3732;max-width:760px;text-shadow:0 1px 5px rgba(255,255,255,.8)}
+.grid{display:grid;gap:20px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:25px;box-shadow:0 8px 24px #3d2b1b0d}.card h3{margin:0 0 8px}.muted{color:var(--muted)}.pill{display:inline-block;padding:6px 10px;border-radius:99px;background:var(--cream);font-size:12px;font-weight:700}.btn{border:0;background:var(--maroon);color:white;border-radius:9px;padding:12px 17px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.btn.secondary{background:var(--cream);color:var(--char)}
+input,select,textarea{width:100%;padding:13px;border:1px solid var(--line);background:white;border-radius:9px;font:inherit;margin:7px 0 14px}label{font-size:13px;font-weight:700}
+.stat{font-size:31px;font-weight:700;color:var(--maroon)}.row{display:flex;justify-content:space-between;gap:15px;align-items:center;border-bottom:1px solid var(--line);padding:13px 0}.row:last-child{border-bottom:0}
+#map{height:540px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}.notice{padding:12px 15px;background:#eee5d3;border-left:4px solid var(--brick);border-radius:7px;font-size:13px;color:#5e554b}
+footer{border-top:1px solid rgba(255,255,255,.18);padding:25px 0;color:rgba(255,255,255,.78);font-size:13px;background:rgba(5,25,42,.78)}
+@media(max-width:800px){.navin{height:auto;padding:14px 0;align-items:flex-start}.links{justify-content:flex-start}.links a{padding:8px 9px}.two,.three{grid-template-columns:1fr}nav{height:auto}}
+</style></head><body><div class="top"></div>
+<nav><div class="container navin">
+<a class="brand" href="/">RAIL DRISHTI<span>SEE BEYOND THE SCHEDULE</span></a>
+<div class="links">
+<a class="{{ 'active' if page=='home' else '' }}" href="/">Home</a>
+<a class="{{ 'active' if page=='track' else '' }}" href="/track">Track Train</a>
+<a class="{{ 'active' if page=='network' else '' }}" href="/network">Live Network</a>
+<a class="{{ 'active' if page=='station' else '' }}" href="/station">Find Station</a>
+<a class="{{ 'active' if page=='journey' else '' }}" href="/journey">Live Journey</a>
+<a class="{{ 'active' if page=='guide' else '' }}" href="/guide">Rail Drishti Guide</a>
+<a class="{{ 'active' if page=='about' else '' }}" href="/about">About</a>
+</div></div></nav><main><div class="container">
+
+<div class="eyebrow">Passenger journey view</div><h1>Track your train</h1>
+<p class="lead">Search a demo train to see its current position, delay and predicted terminal arrival.</p>
+<div class="card" style="margin-top:28px"><div class="two">
+<div><label>Train number</label><input id="trainNo" value="12301" placeholder="e.g. 12301"></div>
+<div style="display:flex;align-items:end"><button class="btn" style="margin-bottom:14px;width:100%" onclick="loadTrain()">Track train</button></div>
+</div><div id="result"></div></div>
+<div id="trackMap" style="height:360px;margin-top:20px;border-radius:14px;overflow:hidden;border:1px solid var(--line)"></div>
+<script>
+let map=L.map('trackMap').setView([28.6,77.2],6), marker=null;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+async function loadTrain(){
+ const n=document.getElementById('trainNo').value.trim();
+ const r=await fetch('/api/trains/'+encodeURIComponent(n)); const d=await r.json();
+ if(!r.ok){document.getElementById('result').innerHTML='<p class="muted">Train not found. Try 12301, 12002, 12951 or 12424.</p>';return;}
+ document.getElementById('result').innerHTML=`<div class="grid three" style="margin-top:15px">
+ <div><div class="stat">${d.number}</div><b>${d.name}</b><div class="muted">${d.origin} → ${d.destination}</div></div>
+ <div><div class="stat">+${d.delay_min} min</div><div class="muted">Current: ${d.current_station}</div></div>
+ <div><div class="stat">${d.predicted_arrival}</div><div class="muted">${d.confidence}% ETA confidence</div></div></div>
+ <h3 style="margin-top:25px">Journey timeline</h3>${d.stops.map(s=>`<div class="row"><b>${s.station}</b><span>${s.expected}</span><span class="muted">${s.status}</span></div>`).join('')}`;
+ if(marker) marker.remove(); marker=L.marker([d.lat,d.lng]).addTo(map).bindPopup(`<b>${d.number} ${d.name}</b><br>${d.current_station} • +${d.delay_min} min`).openPopup(); map.setView([d.lat,d.lng],8);
+}
+loadTrain(); setInterval(loadTrain,8000);
+</script>
+</div></main><footer><div class="container">Rail Drishti prototype • Demo data only • Built for intelligent journey visibility and ETA prediction</div></footer>
+</body></html>
