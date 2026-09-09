@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, render_template, redirect
+import os
 from pathlib import Path
 import sqlite3, threading, time, random
 from datetime import datetime, timedelta
@@ -274,4 +275,4 @@ def gps_api(number):
 
 if __name__=="__main__":
     threading.Thread(target=demo_updater,daemon=True).start()
-    app.run(host="0.0.0.0",port=5001,debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5001)), debug=False)
